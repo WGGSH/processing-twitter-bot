@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "p5-start": "browser-sync start --server --files='./p5js/*'"
+    "p5-start": "browser-sync start --server --files='./p5js/*'",
+    "p5-save": "node ./p5js/p5save.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   "homepage": "https://github.com/WGGSH/processing-twitter-bot#readme",
   "dependencies": {
     "browser-sync": "^2.26.7",
-    "p5": "^1.0.0"
+    "p5": "^1.0.0",
+    "puppeteer": "^3.3.0"
   }
 }
