@@ -7,3 +7,10 @@
 canvas{
   display:block;
 }
+
+#__bs_notify__ {
+  position: absolute !important;
+  display: none !important;
+  top: 0 !important;
+  left: 0 !important;
+}
