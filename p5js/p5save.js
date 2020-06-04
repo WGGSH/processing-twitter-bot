@@ -7,8 +7,7 @@ const puppeteer = require('puppeteer');
   });
   const page = await browser.newPage();
   await page.goto('http://localhost:3000/p5js/');
-  await page.screenshot({ path: './p5js/result.png' });
-
+  await page.screenshot({ path: './p5js/result.png', clip: {x: 0, y: 0, width: 600, height: 600} });
   await browser.close();
 })();
 
