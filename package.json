@@ -21,7 +21,9 @@
   "homepage": "https://github.com/WGGSH/processing-twitter-bot#readme",
   "dependencies": {
     "browser-sync": "^2.26.7",
+    "dotenv": "^8.2.0",
     "p5": "^1.0.0",
-    "puppeteer": "^3.3.0"
+    "puppeteer": "^3.3.0",
+    "twitter": "^1.7.1"
   }
 }
