@@ -3,6 +3,8 @@ const twitter = require('twitter')
 const fs = require('fs')
 const dotenv = require('dotenv')
 const { promisify } = require('util')
+const { modify } = require('./p5js/modify')
+const { p5save } = require('./p5js/p5save')
 
 dotenv.config()
 
@@ -36,6 +38,44 @@ const main = async () => {
       const out = await promisify(fs.appendFile)(filePath, `${tweet.id_str},`)
 
       // ここに初めて観測したリプライに対して行う処理を書く
+      // リプライ先が #p5js を含むツイートか調べる
+      const mentionedTweet = await client.get('statuses/show', {
+        'id': tweet.in_reply_to_status_id_str,
+        'tweet_mode': 'extended',
+        'trim_user': true,
+        'include_entities': false,
+      })
+
+      if(mentionedTweet.full_text.indexOf('#p5js') !== -1){
+        // 一部記号をアンエスケープする
+        const fullText = mentionedTweet.full_text
+          .replace(/(&lt;)/g, '<')
+          .replace(/(&gt;)/g, '>')
+          .replace(/(&quot;)/g, '"')
+          .replace(/(&#39;)/g, "'")
+          .replace(/(&amp;)/g, '&');
+
+        // スクリプトの書き換えを行う
+        const modified = await modify(fullText, tweet.text.split(' '))
+
+        // 画像の作成を行う
+        const res = await p5save()
+
+        // ツイート用画像のアップロードを行う
+        const image = await promisify(fs.readFile)('./p5js/result.png')
+        const uploadRes = await client.post('media/upload', {
+          'media': image
+        })
+
+        await client.post('statuses/update', {
+          'status': '',
+          'in_reply_to_status_id': tweet.id_str,
+          'media_ids': uploadRes.media_id_string,
+        })
+
+        // 画像を使ってリプライを送る
+
+      }
       // await client.post('statuses/update', {
       //   'status': 'test tweet',
       //   'in_reply_to_status_id': tweet.id_str,
@@ -45,10 +85,13 @@ const main = async () => {
 
   // 検索した全ツイートへのリプライ
   // TODO: リプライ済みのツイートか調べる処理が必要
-  const allReply= async () => {
-    await Promise.all(tweets.statuses.map(async tweet => await action(tweet)))
+  for(tweet of tweets.statuses){
+    await action(tweet)
   }
-  allReply()
+  // const allReply= async () => {
+  //   await Promise.all(tweets.statuses.map(async tweet => await action(tweet)))
+  // }
+  // allReply()
 }
 
 main()
