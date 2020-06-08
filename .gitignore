@@ -106,3 +106,5 @@ dist
 result.png
 
 p5js/script.js
+
+tweet_data/tweet.csv
