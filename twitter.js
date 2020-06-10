@@ -83,7 +83,7 @@ const main = async () => {
   // TODO: リプライ済みのツイートか調べる処理が必要
   for(tweet of tweets.statuses){
     if(memoryTweetIds.findIndex(id => id === tweet.id_str) !== -1) continue
-    const out = await promisify(fs.appendFile)(filePath, `${tweet.id_str},`)
+    const out = await promisify(fs.appendFile)(HISTORY_PATH, `${tweet.id_str},`)
     await action(tweet)
   }
 }
