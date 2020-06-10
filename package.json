@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "p5-start": "browser-sync start --server --files='./p5js/*'",
-    "p5-save": "node ./p5js/p5save.js",
-    "modify": "node ./p5js/modify.js"
+    "p5-start": "browser-sync start --server --files='./p5js/*'"
   },
   "repository": {
     "type": "git",

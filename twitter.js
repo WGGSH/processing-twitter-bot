@@ -9,10 +9,10 @@ const { p5save } = require('./p5js/p5save')
 dotenv.config()
 
 const client = new twitter({
-    consumer_key        : `${process.env.CONSUMER_KEY}`,
-    consumer_secret     : `${process.env.CONSUMER_SECRET}`,
-    access_token_key    : `${process.env.ACCESS_TOKEN}`,
-    access_token_secret : `${process.env.ACCESS_TOKEN_SECRET}`,
+  consumer_key        : `${process.env.CONSUMER_KEY}`,
+  consumer_secret     : `${process.env.CONSUMER_SECRET}`,
+  access_token_key    : `${process.env.ACCESS_TOKEN}`,
+  access_token_secret : `${process.env.ACCESS_TOKEN_SECRET}`,
 });
 
 // 各ツイートへのリプライ, 保存
