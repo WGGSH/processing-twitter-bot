@@ -55,8 +55,13 @@ const main = async () => {
           .replace(/(&#39;)/g, "'")
           .replace(/(&amp;)/g, '&');
 
+        // @メンションを消す
+        console.log(tweet.text)
+        const args = tweet.text.split(`@${user_data.screen_name} `).join('').split(' ')
+
         // スクリプトの書き換えを行う
-        const modified = await modify(fullText, tweet.text.split(' '))
+        // const modified = await modify(fullText, tweet.text.split(' '))
+        const modified = await modify(fullText, args)
 
         // 画像の作成を行う
         const res = await p5save()
@@ -68,7 +73,7 @@ const main = async () => {
         })
 
         await client.post('statuses/update', {
-          'status': '',
+          'status': `@${tweet.user.screen_name}`,
           'in_reply_to_status_id': tweet.id_str,
           'media_ids': uploadRes.media_id_string,
         })
@@ -94,4 +99,14 @@ const main = async () => {
   // allReply()
 }
 
-main()
+// main()
+
+const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
+
+(async () => {
+  while(true){
+    console.log('call')
+    main()
+    await sleep(1000*60)
+  }
+})()
