@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "p5-start": "browser-sync start --server --files='./p5js/*'",
-    "p5-save": "node ./p5js/p5save.js",
-    "modify": "node ./p5js/modify.js"
+    "twitter-start": "node ./twitter.js",
+    "start": "concurrently \"npm run p5-start\" \"npm run twitter-start\""
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/WGGSH/processing-twitter-bot#readme",
   "dependencies": {
     "browser-sync": "^2.26.7",
+    "concurrently": "^5.2.0",
     "dotenv": "^8.2.0",
     "p5": "^1.0.0",
     "puppeteer": "^3.3.0",
