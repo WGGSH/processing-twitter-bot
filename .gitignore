@@ -104,7 +104,14 @@ dist
 .tern-port
 
 result.png
+p5js/movie/*.png
+p5js/movie/*.gif
+p5js/movie/*.crdownload
 
+p5js/example.js
+p5js/example.html
 p5js/script.js
+
+
 
 tweet_data/tweet.csv
