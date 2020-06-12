@@ -14,4 +14,5 @@ exports.p5save = async() => {
   await page.goto(P5_URL)
   await page.screenshot({ path: RESULT_IMAGE_PATH, clip: {x: 0, y: 0, width: 600, height: 600} })
   await browser.close()
+  console.log('close')
 }
