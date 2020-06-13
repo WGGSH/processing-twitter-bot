@@ -26,7 +26,7 @@ exports.p5saveMovie = async() => {
 
   // gif化する
   console.log('start convert gif')
-  let time = await promisify(exec)('time convert -delay 6 -loop 0 ./p5js/movie/frame_*.png ./p5js/movie/dst.gif').catch((err) => {
+  let time = await promisify(exec)('time convert -delay 12 -loop 0 ./p5js/movie/frame_*.png ./p5js/movie/dst.gif').catch((err) => {
     console.log(err)
   })
   console.log('finish convert gif')
