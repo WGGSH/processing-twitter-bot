@@ -5,6 +5,7 @@ const dotenv = require('dotenv')
 const { promisify } = require('util')
 const { modify } = require('./p5js/modify')
 const { p5save } = require('./p5js/p5save')
+const { p5saveMovie } = require('./p5js/p5save-movie')
 
 dotenv.config()
 
@@ -27,7 +28,14 @@ const action = async (tweet) => {
     'include_entities': false,
   })
 
-  if(mentionedTweet.full_text.indexOf('#p5js') === -1) return
+  let tweetFrag
+  if(mentionedTweet.full_text.indexOf('#p5js mov') !== -1) {
+    tweetFrag = 'mov'
+  } else if(mentionedTweet.full_text.indexOf('#p5js') !== -1) {
+    tweetFrag = 'img'
+  } else {
+    return
+  }
 
   // 一部記号をアンエスケープする
   const fullText = mentionedTweet.full_text
@@ -44,23 +52,48 @@ const action = async (tweet) => {
   // スクリプトの書き換えを行う
   const modified = await modify(fullText, args)
 
-  // 画像の作成を行う
-  const res = await p5save()
+  // 実行結果の作成を行う
+  let media
+  let RESULT_PATH
+  let uploadRes
+  switch (tweetFrag) {
+    case 'img':
+      console.log('img')
+      await p5save()
 
-  const RESULT_PATH = './p5js/result.png'
-  // ツイート用画像のアップロードを行う
-  const image = await promisify(fs.readFile)(RESULT_PATH)
-  const uploadRes = await client.post('media/upload', {
-    'media': image
-  })
+      RESULT_PATH = './p5js/result.png'
+      media = await promisify(fs.readFile)(RESULT_PATH)
+      uploadRes = await client.post('media/upload', {
+        'media': media
+      })
+      break
+    case 'mov':
+      console.log('movie')
+      await p5saveMovie()
+
+      RESULT_PATH = './p5js/movie/dst.gif'
+      media = await promisify(fs.readFile)(RESULT_PATH)
+      console.log('gif uploading')
+      uploadRes = await client.post('media/upload', {
+        'media': media
+      })
+      console.log('uploaded')
+      console.log(uploadRes)
+      break
+  }
 
   // 画像を使ってリプライを送る
   await client.post('statuses/update', {
     'status': `@${tweet.user.screen_name}`,
     'in_reply_to_status_id': tweet.id_str,
     'media_ids': uploadRes.media_id_string,
+  }).catch((error) => {
+    console.log(error)
+    client.post('statuses/update', {
+      'status': `@${tweet.user.screen_name} エラーが発生したので画像を作成できませんでした`,
+      'in_reply_to_status_id': tweet.id_str,
+    })
   })
-
 }
 
 const getUserData = async () => {
