@@ -8,6 +8,8 @@ const { p5save } = require('./p5js/p5save')
 
 dotenv.config()
 
+let userData
+
 const client = new twitter({
   consumer_key        : `${process.env.CONSUMER_KEY}`,
   consumer_secret     : `${process.env.CONSUMER_SECRET}`,
@@ -37,7 +39,7 @@ const action = async (tweet) => {
 
   // @メンションを消す
   console.log(tweet.text)
-  const args = tweet.text.split(`@${user_data.screen_name} `).join('').split(' ')
+  const args = tweet.text.split(`@${userData.screen_name} `).join('').split(' ')
 
   // スクリプトの書き換えを行う
   const modified = await modify(fullText, args)
@@ -61,16 +63,15 @@ const action = async (tweet) => {
 
 }
 
-let user_data
+const getUserData = async () => {
+  // ユーザーデータ (主に検索用のスクリーンネーム) を取得する
+  return await client.get('account/verify_credentials', {})
+}
 
 const main = async () => {
-
-  // ユーザーデータ (主に検索用のスクリーンネーム) を取得する
-  user_data = await client.get('account/verify_credentials', {})
-
   // 自身に対するリプライを取得する
   const tweets = await client.get('search/tweets', {
-    'q': `to:${user_data.screen_name}`,
+    'q': `to:${userData.screen_name}`,
   })
 
   // リプライ履歴の確認
@@ -91,6 +92,8 @@ const main = async () => {
 const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
 
 (async () => {
+  userData = await getUserData()
+
   while(true){
     main()
     await sleep(1000*60)
