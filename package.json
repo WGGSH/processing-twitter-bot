@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "p5-start": "browser-sync start --server --files='./p5js/script.js'",
+    "p5-start": "browser-sync start --server --no-open --files='./p5js/script.js'",
     "twitter-start": "node ./twitter.js",
     "start": "concurrently \"npm run p5-start\" \"npm run twitter-start\""
   },
