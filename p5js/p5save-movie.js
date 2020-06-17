@@ -20,16 +20,16 @@ exports.p5saveMovie = async() => {
   );
   await page.goto(P5_URL)
   console.log('capture start')
-  await page.waitFor(1000*30) // 30秒ぐらい待つ
+  await page.waitFor(1000*70) // キャプチャが終わるぐらいまで待つ
   console.log('capture finish')
   await browser.close()
 
-  // gif化する
-  console.log('start convert gif')
-  let time = await promisify(exec)(`time convert -delay 12 -loop 0 ${MOVIE_DIR}/frame_*.png ${MOVIE_DIR}/dst.gif`).catch((err) => {
+  // 動画化する
+  console.log('start convert')
+  let time = await promisify(exec)(`ffmpeg -r 30 -i ${MOVIE_DIR}/frame_%03d.png -vcodec libx264 -pix_fmt yuv420p -r 60 ${MOVIE_DIR}/dst.mp4 -y`).catch((err) => {
     console.log(err)
   })
-  console.log('finish convert gif')
+  console.log('finish convert')
   console.log(time)
   console.log('remove buffer file')
   let removeRes = await promisify(exec)(`rm ${MOVIE_DIR}/*.png`)

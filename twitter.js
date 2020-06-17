@@ -56,6 +56,7 @@ const action = async (tweet) => {
   let media
   let RESULT_PATH
   let uploadRes
+  let mediaID
   switch (tweetFrag) {
     case 'img':
       console.log('img')
@@ -66,27 +67,74 @@ const action = async (tweet) => {
       uploadRes = await client.post('media/upload', {
         'media': media
       })
+      mediaID = uploadRes.media_id_string
       break
     case 'mov':
       console.log('movie')
       await p5saveMovie()
 
-      RESULT_PATH = './p5js/movie/dst.gif'
-      media = await promisify(fs.readFile)(RESULT_PATH)
-      console.log('gif uploading')
-      uploadRes = await client.post('media/upload', {
-        'media': media
+      RESULT_PATH = './p5js/movie/dst.mp4'
+      const mediaData = await promisify(fs.readFile)(RESULT_PATH)
+      const mediaSize = (await promisify(fs.stat)(RESULT_PATH)).size
+      console.log('movie uploading')
+
+      // INIT Phase
+      const uploadRes = await client.post('media/upload', {
+        'command': 'INIT',
+        'total_bytes': mediaSize,
+        'media_type': 'video/mp4',
+        'media_category': 'tweet_video',
+      }).catch((error) => {
+        console.log('INIT failed')
+        console.log(error)
       })
-      console.log('uploaded')
-      console.log(uploadRes)
-      break
+      mediaID = uploadRes.media_id_string
+
+      const chunkSize = 500000
+      const chunkNum = Math.ceil(mediaSize / chunkSize)
+      for(let index=0; index < chunkNum; index++){
+        await client.post('media/upload', {
+          'command': 'APPEND',
+          'media_id': mediaID,
+          'media': mediaData.slice(chunkSize * index, chunkSize * (index + 1)),
+          'segment_index': index,
+        }).catch((error) => {
+          console.log(`fail APPEND index:${index}`)
+        })
+      }
+
+      await client.post('media/upload', {
+        'command': 'FINALIZE',
+        'media_id': mediaID,
+      }).catch((error) => {
+        console.log('fail FINALIZE')
+      })
+
+      while (true) {
+        const status = await client.get('media/upload', {
+          'command': 'STATUS',
+          'media_id': mediaID,
+        }).catch((error) => {
+          console.log('fail STATUS')
+        })
+
+        if(status.processing_info.state === 'succeeded'){
+          break
+        } else if (status.processing_info.statu === 'failed') {
+          throw new Error(status.processing_info.error.message)
+        } else {
+          await sleep((status.processing_info.check_after_secs + 1)*1000)
+        }
+      }
+
+      console.log('finish upload')
   }
 
   // 画像を使ってリプライを送る
   await client.post('statuses/update', {
     'status': `@${tweet.user.screen_name}`,
     'in_reply_to_status_id': tweet.id_str,
-    'media_ids': uploadRes.media_id_string,
+    'media_ids': mediaID,
   }).catch((error) => {
     console.log(error)
     client.post('statuses/update', {
@@ -128,7 +176,7 @@ const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
   userData = await getUserData()
 
   while(true){
-    main()
+    await main()
     await sleep(1000*60)
   }
 })()

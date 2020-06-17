@@ -24,13 +24,11 @@ let isFirst = true
 
 function callBack(o, n){
   if(isFirst){
-    frameRate(10)
+    frameRate(5)
     isFirst=false
   }
 
-  if(o[n] > 100){
-  }
-  if(o[n] >= 1 && o[n] < 90){
+  if(o[n] >= 1 && o[n] < 300){
     save(`frame_${String(o[n]).padStart(3,'0')}.png`)
   }
   return true
