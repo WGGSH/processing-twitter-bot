@@ -106,6 +106,7 @@ dist
 result.png
 p5js/movie/*.png
 p5js/movie/*.gif
+p5js/movie/*.mp4
 p5js/movie/*.crdownload
 
 p5js/example.js
